@@ -3,42 +3,32 @@
 pragma solidity ^0.8.7;
 
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
-
 import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
+import "./evidenceTypeDeclaration.sol";
+import "./certModelDeclaration.sol";
 
 contract Certificate{
 
     struct cert_type{  
         address certmodel_addr;
-        bool result;
-        //other fields
+        evidenceType[] evidence;
+        //metrics - HOW CAN I ENCODE THEM? SHOULD WE OMIT THEM RIGHT NOW?
     }
-
+    
     cert_type public cert;
 
-    constructor(address _addr, bool _result){
-        cert.certmodel_addr= _addr;
-        cert.result = _result;
+    constructor(CertificationModel m){
+        cert.certmodel_addr= m.getCertModelAddress();
+        for (uint i = 0; i < m.SIZE(); i++) {
+            cert.evidence[i].testName = m.getEvidenceTestName(i);
+            cert.evidence[i].output = m.getEvidenceOutput(i);
+            cert.evidence[i].result = m.getEvidenceResult(i);
+        }
     }
 
 }
 
 contract CertificationModel{
-
-    struct evidenceType{
-        string testName;
-        bool output; //da fare cast a stringa
-        bool result;
-    }
-
-    struct certModel{
-        string non_functional_property;
-        string target_of_certification;
-        mapping(uint => function()) evidence_collection_model; //statically initialized before deploying. It CANNOT be changed.
-        bool evaluation_function; //statically initialized before deploying. It CANNOT be changed.
-        address certModelAddr;
-        address oracleAddr;
-    }
 
     certModel public model;
     uint public constant SIZE = 1; //size of the evidence collection model
@@ -56,7 +46,6 @@ contract CertificationModel{
 
     function run() public {
         model.evidence_collection_model[0]();
-        collectEvidenceTest1();
     }
 
     function test1() private { //messo da public a private
@@ -64,7 +53,7 @@ contract CertificationModel{
         api.requestCompletedData();
     }
 
-    function collectEvidenceTest1() private {
+    function collectEvidenceTest1() public {
         APIConsumer api = APIConsumer(model.oracleAddr);
         emit testResult(api.result());
         if(api.result() == true){
@@ -79,19 +68,29 @@ contract CertificationModel{
         }
     }
 
+    function getEvidenceTestName(uint index) public view returns(string memory){
+        return evidence[index].testName;
+    }
+
+    function getEvidenceOutput(uint index) public view returns(bool){
+        return evidence[index].output;
+    }
+
     function getEvidenceResult(uint index) public view returns(bool){
         return evidence[index].result;
     }
 
+    function getCertModelAddress() public view returns(address){
+        return model.certModelAddr;
+    }
+
+    
 }
+
+
 
 contract CertificationExecutionAndAward {
    
-     struct evidenceType{
-        string testName;
-        bool output; //da fare cast a stringa
-        bool result;
-    }
     CertificationModel m;
 
     constructor(address _addr){
@@ -103,13 +102,16 @@ contract CertificationExecutionAndAward {
     //cert model execution
     function runCertModel() public{
         m.run(); //con mtest1 va
-        //m.collectEvidence();
+    }
+
+    function evidenceCollection() public{
+        m.collectEvidenceTest1();
     }
 
     //result aggregation
 
     //certificate award https://solidity-by-example.org/new-contract/
-    function evaluateAndCreate(bytes32 salt, address addrCertModel) public returns(address){
+    function evaluateAndCreate(bytes32 salt) public returns(address){
         uint count = 0;
         for (uint i = 0; i < m.SIZE(); i++) {
             if(m.getEvidenceResult(i) == true){
@@ -117,7 +119,7 @@ contract CertificationExecutionAndAward {
             }
         }
         if(count == m.SIZE()){
-            Certificate d = new Certificate{salt: salt}(addrCertModel,true);
+            Certificate d = new Certificate{salt: salt}(m);
             return address(d);
         }
         else{
