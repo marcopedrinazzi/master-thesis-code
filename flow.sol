@@ -46,28 +46,33 @@ contract CertificationModel{
     constructor(string memory _non_functional_property, string memory _target_of_certification, address _oracleAddr){
         model.non_functional_property = _non_functional_property; //init non functional property
         model.target_of_certification = _target_of_certification; //init target of certification
-        model.evidence_collection_model[0]=test1;
-        //evaluation function
+        model.evidence_collection_model[0]=test1; // init evidence collection model
+        //evaluation function - so far it's not needed
         model.certModelAddr = address(this);
         model.oracleAddr = _oracleAddr;
     }
 
-    //this function executes the certification model
+    //this function executes the evidence collection model
     function run() public {
         model.evidence_collection_model[0]();
     }
 
-    function test1() private { //messo da public a private
-        APIConsumer api = APIConsumer(model.oracleAddr);
-        api.requestCompletedData();
+    function collectEvidence() public {
+        collectEvidenceTest1();
     }
 
-    function collectEvidenceTest1() public {
+    function test1() private {
+        APIConsumer api = APIConsumer(model.oracleAddr); //init of the Oracle
+        api.requestCompletedData(); //it executes the test
+    }
+
+    //this function collects the evidence of the test
+    function collectEvidenceTest1() private {
         APIConsumer api = APIConsumer(model.oracleAddr);
         if(api.result() == true){
             evidence[0].testName = "test1";
             evidence[0].output = api.result();
-            evidence[0].result = true;
+            evidence[0].result = true; //result is true because it is what i expect
         }
         else{
             evidence[0].testName = "test1";
@@ -97,13 +102,13 @@ contract CertificationModel{
 }
 
 
-
+//this contract is the orchestrator of the certification process
 contract CertificationExecutionAndAward {
    
-    CertificationModel m;
+    CertificationModel m; //certification model 
 
     constructor(address _addr){
-        m = CertificationModel(_addr);
+        m = CertificationModel(_addr); //it gets initiated with a certification model since it needs to execute it
     }
 
     //view computation
@@ -112,27 +117,27 @@ contract CertificationExecutionAndAward {
     function runCertModel() public{
         m.run(); //con mtest1 va
     }
-
+    //evidence collection - it is executed in another transaction to let the oracle get the data on chain
     function evidenceCollection() public{
-        m.collectEvidenceTest1();
+        m.collectEvidence();
     }
 
-    //result aggregation
+    
 
-    //certificate award https://solidity-by-example.org/new-contract/
+    // result aggregation and certificate award https://solidity-by-example.org/new-contract/
     function evaluateAndCreate(bytes32 salt) public returns(address){
         uint count = 0;
         for (uint i = 0; i < m.SIZE(); i++) {
-            if(m.getEvidenceResult(i) == true){
+            if(m.getEvidenceResult(i) == true){ //if all the result are true, the count is increased
                 count++;
             }
         }
-        if(count == m.SIZE()){
+        if(count == m.SIZE()){ //if the count is equal to the size of the evidence collection model, the certificate smart contract is created  
             Certificate d = new Certificate{salt: salt}(m);
-            return address(d);
+            return address(d); //thanks to the salt it is possible to precompute the deployment address that is returned also as output
         }
         else{
-            return address(0);
+            return address(0); //in case of error the address 0x000000... is returned
         }
     }
     
