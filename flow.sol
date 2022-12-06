@@ -63,7 +63,7 @@ contract CertificationModel{
 
     function test1() private {
         APIConsumer api = APIConsumer(model.oracleAddr); //init of the Oracle
-        api.requestCompletedData(); //it executes the test
+        api.requestCompletedData(0x50183cfd15e17e8452ce9090f2eae2abfc467db4862f78da609642f4f646b9ca, 0x6169e9e0E682E33aA1DD39a75b3c4031b64a7a23); //it executes the test
     }
 
     //this function collects the evidence of the test
@@ -154,21 +154,21 @@ contract APIConsumer is ChainlinkClient, ConfirmedOwner {
 
     // Initialize the link token and target oracle (https://docs.chain.link/any-api/testnet-oracles/)
     constructor() ConfirmedOwner(msg.sender) {
-        setChainlinkToken(0x326C977E6efc84E512bB9C30f76E30c160eD06FB);
-        setChainlinkOracle(0xCC79157eb46F5624204f47AB42b3906cAA40eaB7);
-        jobId = "c1c5e92880894eb6b27d3cae19670aa3";
-        fee =  0.1 * 10**18; // (Varies by network and job)
+        setChainlinkToken(0x326C977E6efc84E512bB9C30f76E30c160eD06FB); 
+        //setChainlinkOracle(0x6169e9e0E682E33aA1DD39a75b3c4031b64a7a23); //originale:0xCC79157eb46F5624204f47AB42b3906cAA40eaB7
+        jobId = 0x50183cfd15e17e8452ce9090f2eae2abfc467db4862f78da609642f4f646b9ca; //originale: c1c5e92880894eb6b27d3cae19670aa3
+        fee =  3 * (0.1 * 10**18); // (Varies by network and job)
     }
 
 
     /* Create a Chainlink request to retrieve API response, find the target
     data (completed field) (the expected behavior of the test is that completed is true).
     */
-    function requestCompletedData() public returns (bytes32 requestId) {
-        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
+    function requestCompletedData(bytes32 _jobId, address _addr) public returns (bytes32 requestId) {
+        Chainlink.Request memory req = buildChainlinkRequest(_jobId, address(this), this.fulfill.selector);
         req.add("get", "http://jsonplaceholder.typicode.com/todos/4");
         req.add("path","completed");
-        return sendChainlinkRequest(req, fee);
+        return sendChainlinkRequestTo(_addr, req, fee);
     }
 
     //Receive the response in the form of bool
