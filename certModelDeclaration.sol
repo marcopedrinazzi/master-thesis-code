@@ -7,5 +7,6 @@ struct certModel{
         mapping(uint => function()) evidence_collection_model; //statically initialized before deploying. It CANNOT be changed.
         bool evaluation_function; //statically initialized before deploying. It CANNOT be changed.
         address certModelAddr;
-        address oracleAddr;
+        address apiConsumerAddr;
+        address preCoordinatorAddr;
     }
