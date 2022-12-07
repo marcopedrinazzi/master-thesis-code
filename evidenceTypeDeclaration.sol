@@ -3,6 +3,6 @@ pragma solidity ^0.8.7;
 
 struct evidenceType{
         string testName;
-        bool output;
+        uint256 output;
         bool result;
 }
