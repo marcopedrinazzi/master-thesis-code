@@ -133,19 +133,19 @@ contract CertificationExecutionAndAward {
 
     // result aggregation and certificate award https://solidity-by-example.org/new-contract/
     function evaluateAndCreate() public{
-        /*uint256 count = 0;
+        uint256 count = 0;
         for (uint256 i = 0; i < m.SIZE(); i++) {
             if(m.getEvidenceResult(i) == true){ //if all the result are true, the count is increased
                 count++;
             }
         }
-        if(count == m.SIZE()){*/ //if the count is equal to the size of the evidence collection model, the certificate smart contract is created  
+        if(count == m.SIZE()){ //if the count is equal to the size of the evidence collection model, the certificate smart contract is created  
             Certificate d = new Certificate(m);
             emit Address(address(d));
-        /*}
+        }
         else{
             emit Address(address(0));
-        }*/
+        }
     }
     
 }
