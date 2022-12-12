@@ -9,4 +9,9 @@ struct certModel{
         address certModelAddr;
         address apiConsumerAddr;
         address preCoordinatorAddr;
+        bytes32 jobId;
     }
+
+/* The evidence collection model is kept as a mapping even though there is only a single test that produces
+a single evidence (that is used as a normal variable and not as an array) because otherwise the concept of having a function
+assigned to a variable wouldnt be possible because solidity doesnt have the function data type*/
