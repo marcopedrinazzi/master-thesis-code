@@ -1457,6 +1457,8 @@ contract PreCoordinator is ChainlinkClient, Ownable, ChainlinkRequestInterface, 
 
   uint256 constant private MAX_ORACLE_COUNT = 45;
 
+  address[] public fixed_oracle_list =  [0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7];
+
   uint256 private globalNonce;
 
   struct ServiceAgreement {
@@ -1511,18 +1513,24 @@ contract PreCoordinator is ChainlinkClient, Ownable, ChainlinkRequestInterface, 
    * create the max uint256 number of service agreements in the same block.
    * @param _minResponses The minimum number of responses before the requesting
    * contract is called with the response data.
-   * @param _oracles The list of oracle contract addresses.
+   * 
    * @param _jobIds The corresponding list of Job IDs.
    * @param _payments The corresponding list of payment amounts.
    */
   function createServiceAgreement(
     uint256 _minResponses,
-    address[] calldata _oracles,
     bytes32[] calldata _jobIds,
-    uint256[] calldata _payments
+    uint256[] calldata _payments,
+    uint256[] calldata _randomIndexes //this parameter is obtained by the VRFv2Consumer.
   )
     external returns (bytes32 saId)
   {
+    //init oracles array
+    address[] memory _oracles = new address[](4);
+    for(uint256 i = 0; i<4; i++){
+      uint256 index_random = _randomIndexes[i];
+      _oracles[i]=fixed_oracle_list[index_random];
+    }
     require(_minResponses > 0, "Min responses must be > 0");
     require(_oracles.length == _jobIds.length && _oracles.length == _payments.length, "Unmet length");
     require(_oracles.length <= MAX_ORACLE_COUNT, "Cannot have more than 45 oracles");
