@@ -40,14 +40,14 @@ contract VRFv2Consumer is VRFConsumerBaseV2, ConfirmedOwner {
     // this limit based on the network that you select, the size of the request,
     // and the processing of the callback request in the fulfillRandomWords()
     // function.
-    uint32 callbackGasLimit = 160000;
+    uint32 callbackGasLimit = 220000;
 
     // The default is 3, but you can set this higher.
     uint16 requestConfirmations = 3;
 
     // For this example, retrieve 2 random values in one request.
     // Cannot exceed VRFCoordinatorV2.MAX_NUM_WORDS.
-    uint32 numWords = 4;
+    uint32 numWords = 5;
 
     /**
      * HARDCODED FOR GOERLI
@@ -85,7 +85,7 @@ contract VRFv2Consumer is VRFConsumerBaseV2, ConfirmedOwner {
         require(s_requests[_requestId].exists, "request not found");
         s_requests[_requestId].fulfilled = true;
         for(uint256 i = 0; i<_randomWords.length; i++){
-            _randomWords[i] = _randomWords[i]%4; //da 0 a 3
+            _randomWords[i] = _randomWords[i]%5; //from 0 to 4 (for picking the oracles later)
         }
         s_requests[_requestId].randomWords = _randomWords;
         emit RequestFulfilled(_requestId, _randomWords);

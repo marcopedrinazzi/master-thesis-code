@@ -1526,12 +1526,12 @@ contract PreCoordinator is ChainlinkClient, Ownable, ChainlinkRequestInterface, 
     external returns (bytes32 saId)
   {
     //init oracles array
-    address[] memory _oracles = new address[](4);
-    for(uint256 i = 0; i<4; i++){
+    address[] memory _oracles = new address[](5);
+    for(uint256 i = 0; i<5; i++){ //5 is the number of oracles that i assume in the system
       uint256 index_random = _randomIndexes[i];
       _oracles[i]=fixed_oracle_list[index_random];
     }
-    require(_jobIds[0]==_jobIds[1] && _jobIds[1]==_jobIds[2] && _jobIds[2]==_jobIds[3]); //job ids must be all equal for our purpose
+    require(_jobIds[0]==_jobIds[1] && _jobIds[1]==_jobIds[2] && _jobIds[2]==_jobIds[3] && _jobIds[3]==_jobIds[4]); //job ids must be all equal for our purpose
     require(_minResponses > 0, "Min responses must be > 0");
     require(_oracles.length == _jobIds.length && _oracles.length == _payments.length, "Unmet length");
     require(_oracles.length <= MAX_ORACLE_COUNT, "Cannot have more than 45 oracles");
