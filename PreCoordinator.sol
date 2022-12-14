@@ -1521,7 +1521,7 @@ contract PreCoordinator is ChainlinkClient, Ownable, ChainlinkRequestInterface, 
     uint256 _minResponses,
     bytes32[] calldata _jobIds,
     uint256[] calldata _payments,
-    uint256[] calldata _randomIndexes //this parameter is obtained by the VRFv2Consumer.
+    uint256[] calldata _randomIndexes
   )
     external returns (bytes32 saId)
   {
@@ -1531,6 +1531,7 @@ contract PreCoordinator is ChainlinkClient, Ownable, ChainlinkRequestInterface, 
       uint256 index_random = _randomIndexes[i];
       _oracles[i]=fixed_oracle_list[index_random];
     }
+    require(_jobIds[0]==_jobIds[1] && _jobIds[1]==_jobIds[2] && _jobIds[2]==_jobIds[3]); //job ids must be all equal for our purpose
     require(_minResponses > 0, "Min responses must be > 0");
     require(_oracles.length == _jobIds.length && _oracles.length == _payments.length, "Unmet length");
     require(_oracles.length <= MAX_ORACLE_COUNT, "Cannot have more than 45 oracles");
