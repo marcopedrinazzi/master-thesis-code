@@ -1457,7 +1457,7 @@ contract PreCoordinator is ChainlinkClient, Ownable, ChainlinkRequestInterface, 
 
   uint256 constant private MAX_ORACLE_COUNT = 45;
 
-  address[] public fixed_oracle_list =  [0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7];
+  address[] public fixed_oracle_list =  [0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7];
 
   uint256 private globalNonce;
 
@@ -1495,14 +1495,9 @@ contract PreCoordinator is ChainlinkClient, Ownable, ChainlinkRequestInterface, 
    * @notice Deploy the contract with a specified address for the LINK
    * and Oracle contract addresses
    * @dev Sets the storage for the specified addresses
-   * @param _link The address of the LINK token contract
    */
-  constructor(address _link) public {
-    if(_link == address(0)) {
-      setPublicChainlinkToken();
-    } else {
-      setChainlinkToken(_link);
-    }
+  constructor() public {
+      setChainlinkToken(0x326C977E6efc84E512bB9C30f76E30c160eD06FB);
   }
 
   /**
