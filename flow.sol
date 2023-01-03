@@ -12,7 +12,6 @@ contract Certificate{
     struct cert_type{  
         address certmodel_addr;
         bytes32 hashed_evidence; //changed datatype from array to single var. It is not needed to have an array on the PoC
-        //metrics - HOW CAN I ENCODE THEM? SHOULD WE OMIT THEM RIGHT NOW (considering the PoC)?
     }
     
     bytes32 public hashed_cert; //state variable (so memorized in the blockchain) that stores the certification data
@@ -21,9 +20,8 @@ contract Certificate{
     The constructor takes as a parameter the certification model to "link" it to the certificate and to get the needed information:
     - the certification model address 
     - the evidences
-    (- the metrics (?))
     
-    To populate the certificate transactions are executed.
+    To populate the certificate transactions are executed to the proper functions
     */
    constructor(CertificationModel m){
         cert_type memory cert;
@@ -33,11 +31,8 @@ contract Certificate{
         //save cert memory variable offchain
 
         hashed_cert = keccak256(abi.encode(cert.certmodel_addr, cert.hashed_evidence));
-
-        //metrics??
     }
 
-    //get function for the evidences.
 
 }
 
@@ -52,7 +47,6 @@ contract CertificationModel{
         model.non_functional_property = _non_functional_property; //init non functional property
         model.target_of_certification = _target_of_certification; //init target of certification
         model.evidence_collection_model[0]=test1; // init evidence collection model
-        //evaluation function - so far it's not needed
         model.certModelAddr = address(this);
         model.apiConsumerAddr = _apiConsumerAddr;
         model.preCoordinatorAddr = _preCoordinatorAddr;
@@ -129,16 +123,27 @@ contract CertificationExecutionAndAward {
         m.collectEvidence();
     }
 
-    // result aggregation and certificate award https://solidity-by-example.org/new-contract/
-    function evaluateAndCreate() public{
+    function evaluatationFunction() private returns(bool){
         uint256 count = 0;
-        if(m.evidenceResult() == true){ //if all the result are true, the count is increased
+        if(m.evidenceResult() == true){ //if all the evidence result are true, the count is increased (here we have only 1 evidence result, hence the if)
             count++;
         }
-
         emit Count(count);
+        if(count == m.SIZE()){//if the count is equal to the size of the evidence collection model, the evaluation function returns true
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    // result aggregation and certificate award https://solidity-by-example.org/new-contract/
+    function evaluateAndCreate() public{
+        bool result;
+
+        result = evaluatationFunction(); //by separating the evaluation function in another function, we add flexibility and respect the traditional cert scheme
         
-        if(count == m.SIZE()){ //if the count is equal to the size of the evidence collection model, the certificate smart contract is created  
+        if(result == true){ 
             Certificate d = new Certificate(m);
             emit Address(address(d));
         }
