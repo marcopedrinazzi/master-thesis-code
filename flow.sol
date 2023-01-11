@@ -14,8 +14,6 @@ contract Certificate{
         bytes32 hashed_evidence; //changed datatype from array to single var. It is not needed to have an array on the PoC
     }
     
-    //bytes32 public hashed_cert; //state variable (so memorized in the blockchain) that stores the certification data
-
     cert_type cert;
     /*Constructor: when i iniate the smart contract, the certificate state variable is initialized with the certification data.
     The constructor takes as a parameter the certification model to "link" it to the certificate and to get the needed information:
@@ -27,10 +25,6 @@ contract Certificate{
    constructor(CertificationModel m){
         cert.certmodel_addr = m.getCertModelAddress();
         cert.hashed_evidence = m.hashed_evidence();
-
-        //save cert memory variable offchain
-
-        //hashed_cert = keccak256(abi.encode(cert.certmodel_addr, cert.hashed_evidence));
     }
 
 
