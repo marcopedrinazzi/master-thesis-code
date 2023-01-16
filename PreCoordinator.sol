@@ -1461,6 +1461,8 @@ contract PreCoordinator is ChainlinkClient, Ownable, ChainlinkRequestInterface, 
 
   uint256 private globalNonce;
 
+  address cloud_service_provider=0xbB2182Fef5bD32B4f04cd341f866B704De18B237;
+
   struct ServiceAgreement {
     uint256 totalPayment;
     uint256 minResponses;
@@ -1512,6 +1514,8 @@ contract PreCoordinator is ChainlinkClient, Ownable, ChainlinkRequestInterface, 
    * @param _jobIds The corresponding list of Job IDs.
    * @param _payments The corresponding list of payment amounts.
    */
+
+  // No modifier here because it would limit the versatility of the contract. So we keep one contract able to do multiple things.
   function createServiceAgreement(
     uint256 _minResponses,
     bytes32[] calldata _jobIds,
@@ -1700,6 +1704,7 @@ contract PreCoordinator is ChainlinkClient, Ownable, ChainlinkRequestInterface, 
     uint256 _expiration
   )
     external
+    onlyCSP
     override
   {
     bytes32 cbRequestId = requests[_requestId];
@@ -1719,6 +1724,16 @@ contract PreCoordinator is ChainlinkClient, Ownable, ChainlinkRequestInterface, 
    */
   modifier checkCallbackAddress(address _to) {
     require(_to != chainlinkTokenAddress(), "Cannot callback to LINK");
+    _;
+  }
+
+  // Modifier to check that the caller is the owner of
+  // the contract.
+  modifier onlyCSP() {
+    require(msg.sender == cloud_service_provider, "Only the CSP can execute this function");
+    // Underscore is a special character only used inside
+    // a function modifier and it tells Solidity to
+    // execute the rest of the code.
     _;
   }
 }

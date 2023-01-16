@@ -48,11 +48,11 @@ contract CertificationModel{
     }
 
     //this function executes the evidence collection model
-    function run() public {
+    function run() public{
         model.evidence_collection_model[0]();
     }
 
-    function collectEvidence() public {
+    function collectEvidence() public{
         collectEvidenceTest1();
     }
 
@@ -87,8 +87,7 @@ contract CertificationModel{
 
 
     function getCertModelAddress() public view returns(address){
-        return model.certModelAddr;
-        
+        return model.certModelAddr; 
     }
 
     
@@ -99,6 +98,8 @@ contract CertificationModel{
 contract CertificationExecutionAndAward {
    
     CertificationModel m; //certification model 
+    address cloud_service_provider=0xbB2182Fef5bD32B4f04cd341f866B704De18B237;
+
     event Address(address);
     event Count(uint256);
 
@@ -109,11 +110,11 @@ contract CertificationExecutionAndAward {
     //view computation
 
     //cert model execution
-    function runCertModel() public{
+    function runCertModel() public onlyCSP{
         m.run(); //con mtest1 va
     }
     //evidence collection - it is executed in another transaction to let the oracle get the data on chain (because it requires time to bring data on chain)
-    function evidenceCollection() public{
+    function evidenceCollection() public onlyCSP{
         m.collectEvidence();
     }
 
@@ -132,7 +133,7 @@ contract CertificationExecutionAndAward {
     }
 
     // result aggregation and certificate award https://solidity-by-example.org/new-contract/
-    function evaluateAndCreate() public{
+    function evaluateAndCreate() public onlyCSP{
         bool result;
 
         result = evaluatationFunction(); //by separating the evaluation function in another function, we add flexibility and respect the traditional cert scheme
@@ -145,7 +146,17 @@ contract CertificationExecutionAndAward {
             emit Address(address(0));
         }
     }
-    
+
+    // Modifier to check that the caller is the owner of
+    // the contract.
+    modifier onlyCSP() {
+        require(msg.sender == cloud_service_provider, "Only the CSP can execute this function");
+        // Underscore is a special character only used inside
+        // a function modifier and it tells Solidity to
+        // execute the rest of the code.
+        _;
+    }
+
 }
 
 //Oracle - ChainLink
@@ -168,6 +179,8 @@ contract APIConsumer is ChainlinkClient, ConfirmedOwner {
 
     THE JOBID is used as a parameter to keep the approach more versatile (see Notion)
     */
+
+    //Both functions need to be public to allow message/internal calls
     function requestIdData(address _oracleAddr, bytes32 jobId) public returns (bytes32 requestId) {
         Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
         req.add("get", "http://jsonplaceholder.typicode.com/todos/4");
@@ -177,7 +190,7 @@ contract APIConsumer is ChainlinkClient, ConfirmedOwner {
     }
 
     //Receive the response in the form of uint256
-    function fulfill(bytes32 _requestId, uint256 _result) public recordChainlinkFulfillment(_requestId) {
+    function fulfill(bytes32 _requestId, uint256 _result) public recordChainlinkFulfillment(_requestId){
         result = _result;
     }
 
@@ -187,5 +200,6 @@ contract APIConsumer is ChainlinkClient, ConfirmedOwner {
         LinkTokenInterface link = LinkTokenInterface(chainlinkTokenAddress());
         require(link.transfer(msg.sender, link.balanceOf(address(this))), "Unable to transfer");
     }
+    
 
 }
