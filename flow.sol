@@ -36,6 +36,8 @@ contract CertificationModel{
     uint public constant SIZE = 1; //size of the evidence collection model
     bool public evidenceResult; //state variable needed for certificate creation
     bytes32 public hashed_evidence; //state variable, the hashed evidence of the test
+    mapping(bytes32 => string) public evidenceRetrieval; //mapping used for the evidence retrieval
+    string storage_address = "An IP address";
 
     constructor(string memory _non_functional_property, string memory _target_of_certification, address _apiConsumerAddr, address _preCoordinatorAddr, bytes32 _jobId){
         model.non_functional_property = _non_functional_property; //init non functional property
@@ -82,15 +84,14 @@ contract CertificationModel{
         //saved real evidence data (now in memory) off chain
 
         hashed_evidence = keccak256(abi.encode(evidence.testName, evidence.output, evidence.result));
-
+        evidenceRetrieval[hashed_evidence] = storage_address; //not tested
     }
 
 
     function getCertModelAddress() public view returns(address){
         return model.certModelAddr; 
     }
-
-    
+   
 }
 
 
