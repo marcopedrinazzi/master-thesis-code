@@ -102,7 +102,7 @@ contract CertificationExecutionAndAward {
     address cloud_service_provider=0xbB2182Fef5bD32B4f04cd341f866B704De18B237;
 
     event Address(address);
-    event Count(uint256);
+    //event Count(uint256);
 
     constructor(address _certModelAddr){
         m = CertificationModel(_certModelAddr); //it gets initiated with a certification model since it needs to execute it
@@ -124,7 +124,7 @@ contract CertificationExecutionAndAward {
         if(m.evidenceResult() == true){ //if all the evidence result are true, the count is increased (here we have only 1 evidence result, hence the if)
             count++;
         }
-        emit Count(count);
+        //emit Count(count);
         if(count == m.SIZE()){//if the count is equal to the size of the evidence collection model, the evaluation function returns true
             return true;
         }
