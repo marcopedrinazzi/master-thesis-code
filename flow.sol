@@ -100,8 +100,9 @@ contract CertificationExecutionAndAward {
    
     CertificationModel m; //certification model 
     address cloud_service_provider=0xbB2182Fef5bD32B4f04cd341f866B704De18B237;
-
-    event Address(address);
+    address certificate_address;
+    
+    //event Address(address);
     //event Count(uint256);
 
     constructor(address _certModelAddr){
@@ -141,10 +142,10 @@ contract CertificationExecutionAndAward {
         
         if(result == true){ 
             Certificate d = new Certificate(m);
-            emit Address(address(d));
+            certificate_address = address(d);
         }
         else{
-            emit Address(address(0));
+            certificate_address = address(0);
         }
     }
 
