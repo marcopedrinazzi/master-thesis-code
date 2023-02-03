@@ -5,6 +5,7 @@ struct certModel{
         string non_functional_property;
         string target_of_certification;
         mapping(uint => function()) evidence_collection_model; //statically initialized before deploying. It CANNOT be changed.
+        mapping(uint => string) evidence_collection_model_names;
         address certModelAddr;
         address apiConsumerAddr;
         address preCoordinatorAddr;

@@ -11,20 +11,18 @@ contract Certificate{
 
     struct cert_type{  
         address certmodel_addr;
-        bytes32 hashed_evidence; //changed datatype from array to single var. It is not needed to have an array on the PoC
+        mapping(string => bytes32) hashed_evidence; //"test name" maps to hashed_evidence 
     }
     
     cert_type cert;
-    /*Constructor: when i iniate the smart contract, the certificate state variable is initialized with the certification data.
-    The constructor takes as a parameter the certification model to "link" it to the certificate and to get the needed information:
-    - the certification model address 
-    - the evidences
-    
-    To populate the certificate transactions are executed to the proper functions
-    */
+
    constructor(CertificationModel m){
         cert.certmodel_addr = m.getCertModelAddress();
-        cert.hashed_evidence = m.hashed_evidence();
+        for(int i = 0;i<m.SIZE();i++){
+            string memory testName = m.getTestName(i);
+            cert.hashed_evidence = m.getHashedEvidence(testName);
+        }
+        
     }
 
 
@@ -32,17 +30,24 @@ contract Certificate{
 
 contract CertificationModel{
 
-    certModel public model; //state variable contianing the 
-    uint public constant SIZE = 1; //size of the evidence collection model
-    bool public evidenceResult; //state variable needed for certificate creation
-    bytes32 public hashed_evidence; //state variable, the hashed evidence of the test
+    certModel public model; 
+    uint public constant SIZE = 4; //size of the evidence collection model
+    mapping(string => bool) public evidenceResult; //"test name" maps to evidence result (true/false)
+    mapping(string => bytes32) hashed_evidence; //"test name" maps to hashed_evidence 
     mapping(bytes32 => string) public evidenceRetrieval; //mapping used for the evidence retrieval
     string storage_address = "An IP address";
 
     constructor(string memory _non_functional_property, string memory _target_of_certification, address _apiConsumerAddr, address _preCoordinatorAddr, bytes32 _jobId){
         model.non_functional_property = _non_functional_property; //init non functional property
         model.target_of_certification = _target_of_certification; //init target of certification
-        model.evidence_collection_model[0]=test1; // init evidence collection model
+        model.evidence_collection_model[0]=heartbleed; // init evidence collection model
+        model.evidence_collection_model[1]=observatory; // init evidence collection model
+        model.evidence_collection_model[2]=sslyze; // init evidence collection model
+        model.evidence_collection_model[3]=webvulnscan; // init evidence collection model
+        model.evidence_collection_model_names[0]="heartbleed test"; // init evidence collection model
+        model.evidence_collection_model_names[1]="observatory test"; // init evidence collection model
+        model.evidence_collection_model_names[2]="sslyze test"; // init evidence collection model
+        model.evidence_collection_model_names[3]="webvulnscan test";
         model.certModelAddr = address(this);
         model.apiConsumerAddr = _apiConsumerAddr;
         model.preCoordinatorAddr = _preCoordinatorAddr;
@@ -52,44 +57,159 @@ contract CertificationModel{
     //this function executes the evidence collection model
     function run() public{
         model.evidence_collection_model[0]();
+        model.evidence_collection_model[1]();
+        model.evidence_collection_model[2]();
+        model.evidence_collection_model[3]();
+        model.evidence_collection_model[4]();
     }
 
     function collectEvidence() public{
-        collectEvidenceTest1();
+        collectEvidenceHeartbleed();
+        collectEvidenceObservatory();
+        collectEvidenceSslyze();
+        collectEvidenceWebvulnscan();
     }
 
-    function test1() private {
+    function heartbleed() private {
         APIConsumer api = APIConsumer(model.apiConsumerAddr); //init of the Oracle
-        api.requestIdData(model.preCoordinatorAddr,model.jobId); //it executes the test
+        api.requestHeartbleed(model.preCoordinatorAddr,model.jobId); //it executes the test
+    }
+
+    function observatory() private {
+        APIConsumer api = APIConsumer(model.apiConsumerAddr); //init of the Oracle
+        api.requestObservatory(model.preCoordinatorAddr,model.jobId); //it executes the test
+    }
+
+    function sslyze() private {
+        APIConsumer api = APIConsumer(model.apiConsumerAddr); //init of the Oracle
+        api.requestSslyze(model.preCoordinatorAddr,model.jobId); //it executes the test
+    }
+
+    function webvulnscan() private {
+        APIConsumer api = APIConsumer(model.apiConsumerAddr); //init of the Oracle
+        api.requestWebvulnscan(model.preCoordinatorAddr,model.jobId); //it executes the test
+    }
+
+
+    //this function collects the evidence of the test
+    function collectEvidenceHeartbleed() private {
+        APIConsumer api = APIConsumer(model.apiConsumerAddr);
+        uint256 expectedOutput = 1;
+        evidenceType memory evidence;
+        bytes32 memory support_evRetr;
+
+        if(api.resultHeartbleed() == expectedOutput){
+            evidence.testName = "heartbleed test";
+            evidence.output = api.result();
+            evidence.result = true; //result is true because it is what i expect
+            evidenceResult["heartbleed test"] = true;
+        }
+        else{
+            evidence.testName = "heartbleed test";
+            evidence.output = api.result();
+            evidence.result = false;
+            evidenceResult["heartbleed test"] = false;
+        }
+
+        hashed_evidence["heartbleed test"] = keccak256(abi.encode(evidence.testName, evidence.output, evidence.result));
+        
+        support_evRetr = hashed_evidence["heartbleed test"];
+        evidenceRetrieval[support_evRetr] = storage_address; //not tested
     }
 
     //this function collects the evidence of the test
-    function collectEvidenceTest1() private {
+    function collectEvidenceObservatory() private {
         APIConsumer api = APIConsumer(model.apiConsumerAddr);
-        uint256 expectedOutput = 4;
+        uint256 expectedOutput = 1;
         evidenceType memory evidence;
+        bytes32 memory support_evRetr;
+
         if(api.result() == expectedOutput){
-            evidence.testName = "test1";
+            evidence.testName = "observatory test";
             evidence.output = api.result();
             evidence.result = true; //result is true because it is what i expect
-            evidenceResult = true;
+            evidenceResult["observatory test"] = true;
         }
         else{
-            evidence.testName = "test1";
+            evidence.testName = "observatory test";
             evidence.output = api.result();
             evidence.result = false;
-            evidenceResult = false;
+            evidenceResult["observatory test"] = false;
         }
 
-        //saved real evidence data (now in memory) off chain
+        hashed_evidence["observatory test"] = keccak256(abi.encode(evidence.testName, evidence.output, evidence.result));
+        
+        support_evRetr = hashed_evidence["observatory test"];
+        evidenceRetrieval[support_evRetr] = storage_address; //not tested
+    }
 
-        hashed_evidence = keccak256(abi.encode(evidence.testName, evidence.output, evidence.result));
-        evidenceRetrieval[hashed_evidence] = storage_address; //not tested
+    //this function collects the evidence of the test
+    function collectEvidenceSslyze() private {
+        APIConsumer api = APIConsumer(model.apiConsumerAddr);
+        uint256 expectedOutput = 1;
+        evidenceType memory evidence;
+        bytes32 memory support_evRetr;
+
+        if(api.result() == expectedOutput){
+            evidence.testName = "sslyze test";
+            evidence.output = api.result();
+            evidence.result = true; //result is true because it is what i expect
+            evidenceResult["sslyze test"] = true;
+        }
+        else{
+            evidence.testName = "sslyze test";
+            evidence.output = api.result();
+            evidence.result = false;
+            evidenceResult["sslyze test"] = false;
+        }
+
+        hashed_evidence["sslyze test"] = keccak256(abi.encode(evidence.testName, evidence.output, evidence.result));
+        
+        support_evRetr = hashed_evidence["sslyze test"];
+        evidenceRetrieval[support_evRetr] = storage_address; //not tested
+    }
+
+    //this function collects the evidence of the test
+    function collectEvidenceWebvulnscan() private {
+        APIConsumer api = APIConsumer(model.apiConsumerAddr);
+        uint256 expectedOutput = 1;
+        evidenceType memory evidence;
+        bytes32 memory support_evRetr;
+
+        if(api.result() == expectedOutput){
+            evidence.testName = "web vuln scan test";
+            evidence.output = api.result();
+            evidence.result = true; //result is true because it is what i expect
+            evidenceResult["web vuln scan test"] = true;
+        }
+        else{
+            evidence.testName = "web vuln scan test";
+            evidence.output = api.result();
+            evidence.result = false;
+            evidenceResult["web vuln scan test"] = false;
+        }
+
+        hashed_evidence["web vuln scan test"] = keccak256(abi.encode(evidence.testName, evidence.output, evidence.result));
+        
+        support_evRetr = hashed_evidence["web vuln scan test"];
+        evidenceRetrieval[support_evRetr] = storage_address; //not tested
     }
 
 
     function getCertModelAddress() public view returns(address){
         return model.certModelAddr; 
+    }
+
+    function getTestName(uint256 index) public view returns(string){
+        return model.evidence_collection_model_names[index]; 
+    }
+
+    function getEvidenceResult(string memory index) public view returns(bool){
+        return evidenceResult[index];
+    }
+
+    function getHashedEvidence(string memory index) public view returns(string){
+        return hashed_evidence[index];
     }
    
 }
@@ -122,9 +242,13 @@ contract CertificationExecutionAndAward {
 
     function evaluatationFunction() private returns(bool){
         uint256 count = 0;
-        if(m.evidenceResult() == true){ //if all the evidence result are true, the count is increased (here we have only 1 evidence result, hence the if)
-            count++;
+        
+        for(uint256 i = 0; i<m.SIZE(); i++){
+            if(m.getEvidenceResult(i) == true){ //if all the evidence result are true, the count is increased (here we have only 1 evidence result, hence the if)
+                count++;
+            }
         }
+        
         //emit Count(count);
         if(count == m.SIZE()){//if the count is equal to the size of the evidence collection model, the evaluation function returns true
             return true;
@@ -165,35 +289,68 @@ contract CertificationExecutionAndAward {
 contract APIConsumer is ChainlinkClient, ConfirmedOwner {
 
     using Chainlink for Chainlink.Request;
-    uint256 public result; //result of the API call - it is the ID of http://jsonplaceholder.typicode.com/todos/4 (expected to be =4)
+    uint256 public resultHeartbleed;
+    uint256 public resultObservatory;
+    uint256 public resultSslyze;
+    uint256 public resultWebvulnscan;
     uint256 constant private FEE = 5 * (0.1 * 10**18); // 5 (the number of oracles (in the well-known list) in the network) * 0.1 LINK
 
     // Initialize the link token and the job_id. The JobId is the service agreement ID generated by the preCoordinator
     constructor() ConfirmedOwner(msg.sender) {
         setChainlinkToken(0x326C977E6efc84E512bB9C30f76E30c160eD06FB); 
-        //ChainLink Goerli Testnet Oracle:0xCC79157eb46F5624204f47AB42b3906cAA40eaB7
     }
 
-
-    /* Create a Chainlink request to retrieve API response, find the target
-    data (id field) (the expected behavior of the test is that id is equal to 4).
-    The parameter is the adddress of the PreCoordinator contract.
-
-    THE JOBID is used as a parameter to keep the approach more versatile (see Notion)
-    */
-
     //Both functions need to be public to allow message/internal calls
-    function requestIdData(address _oracleAddr, bytes32 jobId) public returns (bytes32 requestId) {
-        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
-        req.add("get", "http://jsonplaceholder.typicode.com/todos/4");
-        req.add("path","id");
+    function requestHeartbleed(address _oracleAddr, bytes32 jobId) public returns (bytes32 requestId) {
+        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfillHeartbleed.selector);
+        req.add("get", "https://marcopedrinazzi.github.io/tesi5-frontend/evidence/heartbleed.json");
+        req.add("path","status");
         req.addInt("times", 1);
         return sendChainlinkRequestTo(_oracleAddr, req, FEE);
     }
 
-    //Receive the response in the form of uint256
-    function fulfill(bytes32 _requestId, uint256 _result) public recordChainlinkFulfillment(_requestId){
-        result = _result;
+    function requestObservatory(address _oracleAddr, bytes32 jobId) public returns (bytes32 requestId) {
+        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfillObservatory.selector);
+        req.add("get", "https://marcopedrinazzi.github.io/tesi5-frontend/evidence/observatory.json");
+        req.add("path","status");
+        req.addInt("times", 1);
+        return sendChainlinkRequestTo(_oracleAddr, req, FEE);
+    }
+
+    function requestSslyze(address _oracleAddr, bytes32 jobId) public returns (bytes32 requestId) {
+        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfillSslyze.selector);
+        req.add("get", "https://marcopedrinazzi.github.io/tesi5-frontend/evidence/sslyze.json");
+        req.add("path","status");
+        req.addInt("times", 1);
+        return sendChainlinkRequestTo(_oracleAddr, req, FEE);
+    }
+
+    function requestWebvulnscan(address _oracleAddr, bytes32 jobId) public returns (bytes32 requestId) {
+        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfillWebvulnscan.selector);
+        req.add("get", "https://marcopedrinazzi.github.io/tesi5-frontend/evidence/web-vuln-scan.json");
+        req.add("path","status");
+        req.addInt("times", 1);
+        return sendChainlinkRequestTo(_oracleAddr, req, FEE);
+    }
+
+    //Receive the response in the form of boolean
+    function fulfillHeartbleed(bytes32 _requestId, uint256 _result) public recordChainlinkFulfillment(_requestId){
+        resultHeartbleed = _result;
+    }
+
+    //Receive the response in the form of boolean
+    function fulfillObservatory(bytes32 _requestId, uint256 _result) public recordChainlinkFulfillment(_requestId){
+        resultObservatory = _result;
+    }
+
+    //Receive the response in the form of boolean
+    function fulfillSslyze(bytes32 _requestId, uint256 _result) public recordChainlinkFulfillment(_requestId){
+        resultSslyze = _result;
+    }
+
+    //Receive the response in the form of boolean
+    function fulfillWebvulnscan(bytes32 _requestId, uint256 _result) public recordChainlinkFulfillment(_requestId){
+        resultWebvulnscan = _result;
     }
 
 
