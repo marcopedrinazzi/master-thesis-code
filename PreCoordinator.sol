@@ -1455,6 +1455,8 @@ pragma solidity 0.6.6;
 contract PreCoordinator is ChainlinkClient, Ownable, ChainlinkRequestInterface, LinkTokenReceiver {
   using SafeMath for uint256;
 
+  bytes32 public service_agr_id;
+
   uint256 constant private MAX_ORACLE_COUNT = 45;
 
   address[] public fixed_oracle_list =  [0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7];
@@ -1545,6 +1547,7 @@ contract PreCoordinator is ChainlinkClient, Ownable, ChainlinkRequestInterface, 
 
     emit NewServiceAgreement(saId, totalPayment, _minResponses);
 
+    service_agr_id = saId;
     return saId;
   }
 

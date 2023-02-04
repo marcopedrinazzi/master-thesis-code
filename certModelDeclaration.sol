@@ -9,7 +9,7 @@ struct certModel{
         address certModelAddr;
         address apiConsumerAddr;
         address preCoordinatorAddr;
-        bytes32 jobId;
+        mapping(string => bytes32) jobId;
     }
 
 /* The evidence collection model is kept as a mapping even though there is only a single test that produces
