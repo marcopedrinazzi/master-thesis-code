@@ -43,17 +43,19 @@ contract CertificationModel{
     mapping(bytes32 => string) public evidenceRetrieval; //hashed_evidence maps to storage addres
     string public storage_address = "An IP address"; //storage address
 
-    constructor(string memory _non_functional_property, string memory _target_of_certification, address _apiConsumerAddr, address _preCoordinatorAddr, bytes32 _jobIdHeartBleed, bytes32 _jobIdObservatory, bytes32 _jobIdSslyze, bytes32 _jobIdWebvulnscan){
+    constructor(string memory _non_functional_property, string memory _target_of_certification, address _apiConsumerAddr, address _preCoordinatorAddr, bytes32 _jobIdHeartBleed, bytes32 _jobIdObservatory, bytes32 _jobIdSslyze, bytes32 _jobIdWebvulnscan, bytes32 _jobIdLightweightvulnscan){
         model.non_functional_property = _non_functional_property; //init non functional property
         model.target_of_certification = _target_of_certification; //init target of certification
         model.evidence_collection_model[0]=heartbleed; // init evidence collection model
-        model.evidence_collection_model[1]=observatory; // init evidence collection model
-        model.evidence_collection_model[2]=sslyze; // init evidence collection model
-        model.evidence_collection_model[3]=webvulnscan; // init evidence collection model
-        model.evidence_collection_model_names[0]="heartbleed test"; // init evidence collection model
-        model.evidence_collection_model_names[1]="observatory test"; // init evidence collection model
-        model.evidence_collection_model_names[2]="sslyze test"; // init evidence collection model
+        model.evidence_collection_model[1]=observatory; 
+        model.evidence_collection_model[2]=sslyze; 
+        model.evidence_collection_model[3]=webvulnscan; 
+        model.evidence_collection_model[4]=lightweightvulnscan; 
+        model.evidence_collection_model_names[0]="heartbleed test"; 
+        model.evidence_collection_model_names[1]="observatory test"; 
+        model.evidence_collection_model_names[2]="sslyze test";
         model.evidence_collection_model_names[3]="web vuln scan test";
+        model.evidence_collection_model_names[4]="lightweight vuln scan test";
         model.certModelAddr = address(this);
         model.apiConsumerAddr = _apiConsumerAddr;
         model.preCoordinatorAddr = _preCoordinatorAddr;
@@ -61,6 +63,7 @@ contract CertificationModel{
         model.jobId["observatory test"] = _jobIdObservatory; 
         model.jobId["sslyze test"] = _jobIdSslyze;
         model.jobId["web vuln scan test"] = _jobIdWebvulnscan;
+        model.jobId["lightweight vuln scan test"] = _jobIdLightweightvulnscan;
     }
 
     //this function executes the evidence collection model
@@ -69,6 +72,7 @@ contract CertificationModel{
         model.evidence_collection_model[1]();
         model.evidence_collection_model[2]();
         model.evidence_collection_model[3]();
+        model.evidence_collection_model[4]();
     }
 
     function collectEvidence() public{
@@ -76,6 +80,7 @@ contract CertificationModel{
         collectEvidenceObservatory();
         collectEvidenceSslyze();
         collectEvidenceWebvulnscan();
+        collectEvidenceLightweightvulnscan();
     }
 
     function heartbleed() private {
@@ -97,6 +102,12 @@ contract CertificationModel{
     }
 
     function webvulnscan() private {
+        APIConsumer api = APIConsumer(model.apiConsumerAddr); //init of the Oracle
+        //0x25554f13bb29bd3654f7684ebbde1cf8ccfb54aff7f56d3986eba973e3c7f44e
+        api.requestWebvulnscan(model.preCoordinatorAddr, model.jobId["web vuln scan test"]); //it executes the test
+    }
+
+    function lightweightvulnscan() private {
         APIConsumer api = APIConsumer(model.apiConsumerAddr); //init of the Oracle
         //0x25554f13bb29bd3654f7684ebbde1cf8ccfb54aff7f56d3986eba973e3c7f44e
         api.requestWebvulnscan(model.preCoordinatorAddr, model.jobId["web vuln scan test"]); //it executes the test
@@ -207,6 +218,32 @@ contract CertificationModel{
         evidenceRetrieval[support_evRetr] = storage_address; //not tested
     }
 
+    //this function collects the evidence of the test
+    function collectEvidenceLightweightvulnscan() private {
+        APIConsumer api = APIConsumer(model.apiConsumerAddr);
+        uint256 expectedOutput = 1;
+        evidenceType memory evidence;
+        bytes32 support_evRetr;
+
+        if(api.resultLightweightvulnscan() == expectedOutput){
+            evidence.testName = "lightweight vuln scan test";
+            evidence.output = api.resultLightweightvulnscan();
+            evidence.result = true; //result is true because it is what i expect
+            evidenceResult["lightweight vuln scan test"] = true;
+        }
+        else{
+            evidence.testName = "lightweight vuln scan test";
+            evidence.output = api.resultLightweightvulnscan();
+            evidence.result = false;
+            evidenceResult["lightweight vuln scan test"] = false;
+        }
+
+        hashed_evidence["lightweight vuln scan test"] = keccak256(abi.encode(evidence.testName, evidence.output, evidence.result));
+        
+        support_evRetr = hashed_evidence["lightweight vuln scan test"];
+        evidenceRetrieval[support_evRetr] = storage_address; //not tested
+    }
+
 
     function getCertModelAddress() public view returns(address){
         return model.certModelAddr; 
@@ -215,14 +252,6 @@ contract CertificationModel{
     function getTestName(uint256 index) public view returns(string memory){
         return model.evidence_collection_model_names[index]; 
     }
-
-    /*function getEvidenceResult(string memory index) public view returns(bool){
-        return evidenceResult[index];
-    }
-
-    function getHashedEvidence(string memory index) public view returns(bytes32){
-        return hashed_evidence[index];
-    }*/
    
 }
 
@@ -270,7 +299,7 @@ contract CertificationExecutionAndAward {
         }
     }
 
-    // result aggregation and certificate award https://solidity-by-example.org/new-contract/
+    // result aggregation and certificate award 
     function evaluateAndCreate() public onlyCSP{
         bool result;
 
@@ -305,6 +334,7 @@ contract APIConsumer is ChainlinkClient, ConfirmedOwner {
     uint256 public resultObservatory;
     uint256 public resultSslyze;
     uint256 public resultWebvulnscan;
+    uint256 public resultLightweightvulnscan;
     uint256 constant private FEE = 5 * (0.1 * 10**18); // 5 (the number of oracles (in the well-known list) in the network) * 0.1 LINK
 
     constructor() ConfirmedOwner(msg.sender) {
@@ -344,6 +374,14 @@ contract APIConsumer is ChainlinkClient, ConfirmedOwner {
         return sendChainlinkRequestTo(_oracleAddr, req, FEE);
     }
 
+    function requestLightweightvulnscan(address _oracleAddr, bytes32 jobId) public returns (bytes32 requestId) {
+        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfillLightweightvulnscan.selector);
+        req.add("get", "https://marcopedrinazzi.github.io/tesi5-frontend/evidence/lightweight-vuln-scan.json");
+        req.add("path","status");
+        req.addInt("times", 1);
+        return sendChainlinkRequestTo(_oracleAddr, req, FEE);
+    }
+
     //Receive the response
     function fulfillHeartbleed(bytes32 _requestId, uint256 _result) public recordChainlinkFulfillment(_requestId){
         resultHeartbleed = _result;
@@ -362,6 +400,11 @@ contract APIConsumer is ChainlinkClient, ConfirmedOwner {
     //Receive the response
     function fulfillWebvulnscan(bytes32 _requestId, uint256 _result) public recordChainlinkFulfillment(_requestId){
         resultWebvulnscan = _result;
+    }
+
+    //Receive the response
+    function fulfillLightweightvulnscan(bytes32 _requestId, uint256 _result) public recordChainlinkFulfillment(_requestId){
+        resultLightweightvulnscan = _result;
     }
 
 
