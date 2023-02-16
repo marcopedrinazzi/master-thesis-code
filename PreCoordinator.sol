@@ -2,6 +2,8 @@
  *Submitted for verification at Etherscan.io on 2020-08-06
 */
 
+//credits https://towardsdatascience.com/api-calls-on-blockchain-best-practice-for-data-collection-11f1fc86a2be
+
 // File: contracts/vendor/Buffer.sol
 
 pragma solidity ^0.6.0;
