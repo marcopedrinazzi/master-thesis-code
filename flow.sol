@@ -37,7 +37,7 @@ contract Certificate{
 contract CertificationModel{
 
     certModel public model; 
-    uint public constant SIZE = 4; //size of the evidence collection model
+    uint public constant SIZE = 5; //size of the evidence collection model
     mapping(string => bool) public evidenceResult; //test name maps to evidence result (true/false)
     mapping(string => bytes32) public hashed_evidence; //test name maps to hashed_evidence 
     mapping(bytes32 => string) public evidenceRetrieval; //hashed_evidence maps to storage addres
@@ -110,7 +110,7 @@ contract CertificationModel{
     function lightweightvulnscan() private {
         APIConsumer api = APIConsumer(model.apiConsumerAddr); //init of the Oracle
         //0x25554f13bb29bd3654f7684ebbde1cf8ccfb54aff7f56d3986eba973e3c7f44e
-        api.requestWebvulnscan(model.preCoordinatorAddr, model.jobId["web vuln scan test"]); //it executes the test
+        api.requestLightweightvulnscan(model.preCoordinatorAddr, model.jobId["lightweight vuln scan test"]); //it executes the test
     }
 
 
