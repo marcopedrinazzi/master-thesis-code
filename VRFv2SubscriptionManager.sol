@@ -27,7 +27,7 @@ contract VRFv2SubscriptionManager {
         COORDINATOR = VRFCoordinatorV2Interface(vrfCoordinator);
         LINKTOKEN = LinkTokenInterface(link_token_contract);
         s_owner = msg.sender;
-        //Create a new subscription when you deploy the contract.
+        //Creates a new subscription when the contract is deployed
         createNewSubscription();
     }
 
@@ -37,7 +37,7 @@ contract VRFv2SubscriptionManager {
     }
 
     // Assumes this contract owns link.
-    // 1000000000000000000 = 1 LINK
+    //the amount needs to be specified in LINK according to this notation 1000000000000000000 = 1 LINK
     function topUpSubscription(uint256 amount) external onlyOwner {
         LINKTOKEN.transferAndCall(
             address(COORDINATOR),

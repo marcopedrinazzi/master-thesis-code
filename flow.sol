@@ -134,10 +134,11 @@ contract CertificationModel{
             evidenceResult["heartbleed test"] = false;
         }
 
-        hashed_evidence["heartbleed test"] = keccak256(abi.encode(evidence.testName, evidence.output, evidence.result));
+        hashed_evidence["heartbleed test"] = keccak256(abi.encode(evidence.testName, evidence.output, evidence.result)); //hashing of the evidence data
         
+        //evidence retrieval phase
         support_evRetr = hashed_evidence["heartbleed test"];
-        evidenceRetrieval[support_evRetr] = storage_address; //not tested
+        evidenceRetrieval[support_evRetr] = storage_address;
     }
 
     //this function collects the evidence of the test
@@ -163,7 +164,7 @@ contract CertificationModel{
         hashed_evidence["observatory test"] = keccak256(abi.encode(evidence.testName, evidence.output, evidence.result));
         
         support_evRetr = hashed_evidence["observatory test"];
-        evidenceRetrieval[support_evRetr] = storage_address; //not tested
+        evidenceRetrieval[support_evRetr] = storage_address; 
     }
 
     //this function collects the evidence of the test
@@ -189,7 +190,7 @@ contract CertificationModel{
         hashed_evidence["sslyze test"] = keccak256(abi.encode(evidence.testName, evidence.output, evidence.result));
         
         support_evRetr = hashed_evidence["sslyze test"];
-        evidenceRetrieval[support_evRetr] = storage_address; //not tested
+        evidenceRetrieval[support_evRetr] = storage_address;
     }
 
     //this function collects the evidence of the test
@@ -215,7 +216,7 @@ contract CertificationModel{
         hashed_evidence["web vuln scan test"] = keccak256(abi.encode(evidence.testName, evidence.output, evidence.result));
         
         support_evRetr = hashed_evidence["web vuln scan test"];
-        evidenceRetrieval[support_evRetr] = storage_address; //not tested
+        evidenceRetrieval[support_evRetr] = storage_address;
     }
 
     //this function collects the evidence of the test
@@ -241,7 +242,7 @@ contract CertificationModel{
         hashed_evidence["lightweight vuln scan test"] = keccak256(abi.encode(evidence.testName, evidence.output, evidence.result));
         
         support_evRetr = hashed_evidence["lightweight vuln scan test"];
-        evidenceRetrieval[support_evRetr] = storage_address; //not tested
+        evidenceRetrieval[support_evRetr] = storage_address; 
     }
 
 
@@ -285,7 +286,7 @@ contract CertificationExecutionAndAward {
         uint256 count = 0;
         
         for(uint256 i = 0; i<m.SIZE(); i++){
-            if(m.evidenceResult(m.getTestName(i)) == true){ //if all the evidence result are true, the count is increased (here we have only 1 evidence result, hence the if)
+            if(m.evidenceResult(m.getTestName(i)) == true){
                 count++;
             }
         }
@@ -310,7 +311,7 @@ contract CertificationExecutionAndAward {
             certificate_address = address(d);
         }
         else{
-            certificate_address = address(0);
+            certificate_address = address(0);  //if the creation does not succeed an invalid address is returned
         }
     }
 
@@ -341,7 +342,6 @@ contract APIConsumer is ChainlinkClient, ConfirmedOwner {
         setChainlinkToken(0x326C977E6efc84E512bB9C30f76E30c160eD06FB); 
     }
 
-    //Both functions need to be public to allow message/internal calls
     function requestHeartbleed(address _oracleAddr, bytes32 jobId) public returns (bytes32 requestId) {
         Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfillHeartbleed.selector);
         req.add("get", "https://marcopedrinazzi.github.io/tesi5-frontend/evidence/heartbleed.json");
@@ -382,27 +382,27 @@ contract APIConsumer is ChainlinkClient, ConfirmedOwner {
         return sendChainlinkRequestTo(_oracleAddr, req, FEE);
     }
 
-    //Receive the response
+    //Receive the response heartbleed
     function fulfillHeartbleed(bytes32 _requestId, uint256 _result) public recordChainlinkFulfillment(_requestId){
         resultHeartbleed = _result;
     }
 
-    //Receive the response
+    //Receive the response observatory
     function fulfillObservatory(bytes32 _requestId, uint256 _result) public recordChainlinkFulfillment(_requestId){
         resultObservatory = _result;
     }
 
-    //Receive the response
+    //Receive the response sslyze
     function fulfillSslyze(bytes32 _requestId, uint256 _result) public recordChainlinkFulfillment(_requestId){
         resultSslyze = _result;
     }
 
-    //Receive the response
+    //Receive the response webvulnscan
     function fulfillWebvulnscan(bytes32 _requestId, uint256 _result) public recordChainlinkFulfillment(_requestId){
         resultWebvulnscan = _result;
     }
 
-    //Receive the response
+    //Receive the response lightweightvulnscan
     function fulfillLightweightvulnscan(bytes32 _requestId, uint256 _result) public recordChainlinkFulfillment(_requestId){
         resultLightweightvulnscan = _result;
     }

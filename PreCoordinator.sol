@@ -1461,6 +1461,7 @@ contract PreCoordinator is ChainlinkClient, Ownable, ChainlinkRequestInterface, 
 
   uint256 constant private MAX_ORACLE_COUNT = 45;
 
+  //in our scenario, as we said, we used the same oracle
   address[] public fixed_oracle_list =  [0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7];
 
   uint256 private globalNonce;
