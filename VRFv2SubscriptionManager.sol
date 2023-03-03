@@ -10,10 +10,10 @@ contract VRFv2SubscriptionManager {
     VRFCoordinatorV2Interface COORDINATOR;
     LinkTokenInterface LINKTOKEN;
 
-    // Goerli coordinator.
+    // Sepolia coordinator.
     address vrfCoordinator = 0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625;
 
-    // Goerli LINK token contract.
+    // Sepolia LINK token contract.
     address link_token_contract = 0x779877A7B0D9E8603169DdbD7836e478b4624789;
 
     // The gas lane to use, which specifies the maximum gas price to bump to.
