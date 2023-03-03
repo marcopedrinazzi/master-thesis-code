@@ -11,13 +11,13 @@ contract VRFv2SubscriptionManager {
     LinkTokenInterface LINKTOKEN;
 
     // Goerli coordinator.
-    address vrfCoordinator = 0x2Ca8E0C643bDe4C2E08ab1fA0da3401AdAD7734D;
+    address vrfCoordinator = 0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625;
 
     // Goerli LINK token contract.
-    address link_token_contract = 0x326C977E6efc84E512bB9C30f76E30c160eD06FB;
+    address link_token_contract = 0x779877A7B0D9E8603169DdbD7836e478b4624789;
 
     // The gas lane to use, which specifies the maximum gas price to bump to.
-    bytes32 keyHash = 0x79d3d8832d904592c0bf9818b621522c988bb8b0c05cdc3b15aea1b6e8db0c15;
+    bytes32 keyHash = 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c;
 
     // Storage parameters
     uint64 public s_subscriptionId;

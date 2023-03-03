@@ -85,31 +85,26 @@ contract CertificationModel{
 
     function heartbleed() private {
         APIConsumer api = APIConsumer(model.apiConsumerAddr); //init of the Oracle
-        //0xeb6103219b07ee393be30dce604b89b594bb6a95e1781517cf929d41c24507aa
         api.requestHeartbleed(model.preCoordinatorAddr, model.jobId["heartbleed test"]); //it executes the test
     }
 
     function observatory() private {
         APIConsumer api = APIConsumer(model.apiConsumerAddr); //init of the Oracle
-        //0xeb6103219b07ee393be30dce604b89b594bb6a95e1781517cf929d41c24507aa
         api.requestObservatory(model.preCoordinatorAddr, model.jobId["observatory test"]); //it executes the test
     }
 
     function sslyze() private {
         APIConsumer api = APIConsumer(model.apiConsumerAddr); //init of the Oracle
-        //0xbab987921eb6059a7941bd1d99ddc73be18ec40a45967537d2476ef1e902c174
         api.requestSslyze(model.preCoordinatorAddr, model.jobId["sslyze test"]); //it executes the test
     }
 
     function webvulnscan() private {
         APIConsumer api = APIConsumer(model.apiConsumerAddr); //init of the Oracle
-        //0x25554f13bb29bd3654f7684ebbde1cf8ccfb54aff7f56d3986eba973e3c7f44e
         api.requestWebvulnscan(model.preCoordinatorAddr, model.jobId["web vuln scan test"]); //it executes the test
     }
 
     function lightweightvulnscan() private {
         APIConsumer api = APIConsumer(model.apiConsumerAddr); //init of the Oracle
-        //0x25554f13bb29bd3654f7684ebbde1cf8ccfb54aff7f56d3986eba973e3c7f44e
         api.requestLightweightvulnscan(model.preCoordinatorAddr, model.jobId["lightweight vuln scan test"]); //it executes the test
     }
 
@@ -261,7 +256,7 @@ contract CertificationModel{
 contract CertificationExecutionAndAward {
    
     CertificationModel m; //certification model 
-    address public cloud_service_provider=0xbB2182Fef5bD32B4f04cd341f866B704De18B237;
+    address public cloud_service_provider=0x9024326555a32a08E46B8a977696319AB1ad642a;
     address public certificate_address;
     
     //event Address(address);
@@ -339,7 +334,7 @@ contract APIConsumer is ChainlinkClient, ConfirmedOwner {
     uint256 constant private FEE = 5 * (0.1 * 10**18); // 5 (the number of oracles (in the well-known list) in the network) * 0.1 LINK
 
     constructor() ConfirmedOwner(msg.sender) {
-        setChainlinkToken(0x326C977E6efc84E512bB9C30f76E30c160eD06FB); 
+        setChainlinkToken(0x779877A7B0D9E8603169DdbD7836e478b4624789); 
     }
 
     function requestHeartbleed(address _oracleAddr, bytes32 jobId) public returns (bytes32 requestId) {

@@ -1462,11 +1462,11 @@ contract PreCoordinator is ChainlinkClient, Ownable, ChainlinkRequestInterface, 
   uint256 constant private MAX_ORACLE_COUNT = 45;
 
   //in our scenario, as we said, we used the same oracle
-  address[] public fixed_oracle_list =  [0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7, 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7];
+  address[] public fixed_oracle_list = [0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD, 0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD, 0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD,0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD, 0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD];
 
   uint256 private globalNonce;
 
-  address cloud_service_provider=0xbB2182Fef5bD32B4f04cd341f866B704De18B237;
+  address cloud_service_provider=0x9024326555a32a08E46B8a977696319AB1ad642a;
 
   struct ServiceAgreement {
     uint256 totalPayment;
@@ -1504,7 +1504,7 @@ contract PreCoordinator is ChainlinkClient, Ownable, ChainlinkRequestInterface, 
    * @dev Sets the storage for the specified addresses
    */
   constructor() public {
-      setChainlinkToken(0x326C977E6efc84E512bB9C30f76E30c160eD06FB);
+      setChainlinkToken(0x779877A7B0D9E8603169DdbD7836e478b4624789);
   }
 
   /**
