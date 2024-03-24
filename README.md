@@ -1,3 +1,2 @@
-# Code of my Marco Pedrinazzi's thesis
+# Code used in my master's thesis "A Transparent Certification Scheme Based on Blockchain"
 
-Here you can find all the code of my thesis
